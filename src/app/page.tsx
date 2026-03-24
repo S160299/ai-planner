@@ -57,7 +57,7 @@ export default function HomePage() {
             <span className="text-white font-bold text-lg">PlannerAI</span>
           </div>
           <a
-            href="https://github.com"
+            href="https://github.com/S160299/ai-planner"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
