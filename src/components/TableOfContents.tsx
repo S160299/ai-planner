@@ -50,7 +50,7 @@ export default function TableOfContents({
 }: TableOfContentsProps) {
   return (
     <nav className="space-y-1">
-      <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold px-3 mb-3">
+      <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold px-3 mb-3">
         Report Sections
       </p>
       {sections.map((section, index) => {
@@ -64,13 +64,13 @@ export default function TableOfContents({
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: index * 0.03 }}
             onClick={() => onSectionClick(section.id)}
-            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-sm transition-all ${
+            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-left text-sm transition-all ${
               isActive
-                ? "bg-purple-500/20 text-purple-300 border-l-2 border-purple-400"
-                : "text-gray-400 hover:bg-white/5 hover:text-gray-200"
+                ? "bg-muted text-foreground font-medium"
+                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
             }`}
           >
-            <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+            <Icon className="w-4 h-4 flex-shrink-0" />
             <span className="truncate">{section.title}</span>
           </motion.button>
         );

@@ -344,30 +344,24 @@ export default function ReportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a]">
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/5 rounded-full blur-3xl" />
-      </div>
-
+    <div className="min-h-screen bg-background flex flex-col font-sans text-foreground">
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#0a0a1a]/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+              className="inline-flex items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 w-9"
             >
-              <ArrowLeft className="w-4 h-4 text-gray-400" />
+              <ArrowLeft className="w-4 h-4 text-muted-foreground" />
             </Link>
             <div>
-              <h1 className="text-white font-bold text-lg flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-400" />
+              <h1 className="text-foreground font-semibold text-lg flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-foreground" />
                 AI Planning Report
               </h1>
               {report && (
-                <p className="text-xs text-gray-500 mt-0.5 truncate max-w-md">
+                <p className="text-xs text-muted-foreground mt-0.5 truncate max-w-md">
                   {report.problemStatement}
                 </p>
               )}
@@ -379,10 +373,10 @@ export default function ReportPage() {
               <>
                 <button
                   onClick={handleSave}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-xs font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-8 px-3 ${
                     saved
-                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                      : "bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10"
+                      ? "bg-emerald-500/15 text-emerald-500 hover:bg-emerald-500/25 border border-emerald-500/20"
+                      : "border border-input bg-background hover:bg-accent hover:text-accent-foreground shadow-sm"
                   }`}
                 >
                   <Save className="w-3 h-3" />
@@ -395,7 +389,7 @@ export default function ReportPage() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="container mx-auto px-6 py-8">
         {/* Agent Progress (shown while generating) */}
         {isGenerating && (
           <motion.div
@@ -404,10 +398,10 @@ export default function ReportPage() {
             className="max-w-2xl mx-auto py-16"
           >
             <div className="text-center mb-8">
-              <h2 className="text-xl font-bold text-white mb-2">
+              <h2 className="text-xl font-bold text-foreground mb-2">
                 Generating Your Plan
               </h2>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 AI agents are analyzing your problem...
               </p>
             </div>
@@ -422,12 +416,12 @@ export default function ReportPage() {
             animate={{ opacity: 1 }}
             className="max-w-2xl mx-auto py-16 text-center"
           >
-            <div className="p-6 rounded-2xl bg-red-500/10 border border-red-500/20">
-              <h3 className="text-red-300 font-semibold mb-2">Generation Failed</h3>
-              <p className="text-red-400/70 text-sm">{error}</p>
+            <div className="p-6 rounded-xl bg-destructive/10 border border-destructive/20">
+              <h3 className="text-destructive font-semibold tracking-tight mb-2">Generation Failed</h3>
+              <p className="text-destructive/80 text-sm">{error}</p>
               <Link
                 href="/"
-                className="inline-block mt-4 px-4 py-2 rounded-lg bg-white/5 text-gray-300 text-sm hover:bg-white/10 transition-colors"
+                className="inline-flex mt-4 h-9 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
               >
                 Try Again
               </Link>
@@ -455,13 +449,13 @@ export default function ReportPage() {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-5 rounded-2xl bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-emerald-500/10 border border-white/[0.08]"
+                className="p-6 rounded-xl bg-accent/50 border shadow-sm"
               >
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                <h3 className="text-sm font-semibold tracking-tight text-foreground mb-1">
                   Problem Statement
-                </p>
-                <p className="text-white font-medium">{report.problemStatement}</p>
-                <p className="text-xs text-gray-600 mt-2">
+                </h3>
+                <p className="text-muted-foreground text-sm">{report.problemStatement}</p>
+                <p className="text-xs text-muted-foreground/70 mt-3">
                   Generated: {new Date(report.generatedAt).toLocaleString()}
                 </p>
               </motion.div>
@@ -492,11 +486,12 @@ export default function ReportPage() {
 
         {/* No problem - redirect to home */}
         {!isGenerating && !report && !error && (
-          <div className="text-center py-20">
-            <p className="text-gray-400 mb-4">No problem statement provided.</p>
+          <div className="text-center py-24">
+            <h3 className="text-lg font-semibold tracking-tight mb-2">No problem statement provided</h3>
+            <p className="text-muted-foreground text-sm mb-6 max-w-sm mx-auto">Please return to the home page and specify a problem statement to generate a plan.</p>
             <Link
               href="/"
-              className="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold text-sm hover:from-purple-500 hover:to-blue-500 transition-all"
+              className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2 text-sm font-medium transition-colors"
             >
               Go to Home
             </Link>

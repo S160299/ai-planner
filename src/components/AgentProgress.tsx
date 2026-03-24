@@ -11,10 +11,10 @@ const agentIcons = {
 };
 
 const statusColors = {
-  pending: "text-gray-500",
-  running: "text-blue-400",
-  completed: "text-emerald-400",
-  error: "text-red-400",
+  pending: "text-muted-foreground",
+  running: "text-primary",
+  completed: "text-emerald-500",
+  error: "text-destructive",
 };
 
 export default function AgentProgress({ steps }: { steps: AgentStep[] }) {
@@ -31,10 +31,10 @@ export default function AgentProgress({ steps }: { steps: AgentStep[] }) {
               {!isLast && (
                 <div className="absolute left-[23px] top-[48px] w-[2px] h-[calc(100%-48px)]">
                   <div
-                    className={`h-full w-full transition-colors duration-500 ${
+                    className={`h-full w-full transition-colors duration-500 rounded-full ${
                       step.status === "completed"
-                        ? "bg-emerald-500/50"
-                        : "bg-white/10"
+                        ? "bg-primary"
+                        : "bg-border"
                     }`}
                   />
                 </div>
@@ -45,12 +45,12 @@ export default function AgentProgress({ steps }: { steps: AgentStep[] }) {
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: index * 0.1 }}
-                className={`relative flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center border transition-all duration-500 ${
+                className={`relative flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
                   step.status === "running"
-                    ? "bg-blue-500/20 border-blue-500/50 shadow-lg shadow-blue-500/20"
+                    ? "bg-background border-primary"
                     : step.status === "completed"
-                    ? "bg-emerald-500/20 border-emerald-500/50"
-                    : "bg-white/5 border-white/10"
+                    ? "bg-primary/10 border-primary"
+                    : "bg-background border-border"
                 }`}
               >
                 {step.status === "running" ? (
@@ -58,20 +58,12 @@ export default function AgentProgress({ steps }: { steps: AgentStep[] }) {
                     animate={{ rotate: 360 }}
                     transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                   >
-                    <Loader2 className="w-5 h-5 text-blue-400" />
+                    <Loader2 className="w-5 h-5 text-primary" />
                   </motion.div>
                 ) : step.status === "completed" ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  <CheckCircle2 className="w-5 h-5 text-primary" />
                 ) : (
                   <Icon className={`w-5 h-5 ${statusColors[step.status]}`} />
-                )}
-
-                {step.status === "running" && (
-                  <motion.div
-                    className="absolute inset-0 rounded-xl border-2 border-blue-400/30"
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
                 )}
               </motion.div>
 
@@ -84,30 +76,30 @@ export default function AgentProgress({ steps }: { steps: AgentStep[] }) {
               >
                 <div className="flex items-center gap-2">
                   <h3
-                    className={`font-semibold text-sm transition-colors ${
+                    className={`font-semibold text-sm transition-colors tracking-tight ${
                       step.status === "running"
-                        ? "text-blue-300"
+                        ? "text-primary"
                         : step.status === "completed"
-                        ? "text-emerald-300"
-                        : "text-gray-400"
+                        ? "text-foreground"
+                        : "text-muted-foreground"
                     }`}
                   >
                     {step.label}
                   </h3>
                   {step.status === "running" && (
                     <motion.span
-                      className="text-xs text-blue-400/70 font-mono"
-                      animate={{ opacity: [1, 0.3, 1] }}
+                      className="text-xs text-muted-foreground"
+                      animate={{ opacity: [1, 0.4, 1] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
                     >
                       processing...
                     </motion.span>
                   )}
                   {step.status === "completed" && (
-                    <span className="text-xs text-emerald-400/70">✓ done</span>
+                     <span className="text-xs text-muted-foreground">✓ done</span>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 mt-0.5">{step.description}</p>
+                <p className="text-xs text-muted-foreground mt-1">{step.description}</p>
               </motion.div>
             </div>
           );

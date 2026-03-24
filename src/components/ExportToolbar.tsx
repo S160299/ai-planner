@@ -51,12 +51,12 @@ export default function ExportToolbar({ report }: ExportToolbarProps) {
       <button
         onClick={() => handleExport("docx")}
         disabled={exportingDocx}
-        className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-blue-600/20 border border-blue-500/30 text-blue-300 hover:bg-blue-600/30 hover:border-blue-400/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50 gap-2"
       >
         {exportingDocx ? (
           <Loader2 className="w-4 h-4 animate-spin" />
         ) : (
-          <FileText className="w-4 h-4" />
+          <FileText className="w-4 h-4 text-primary" />
         )}
         Download DOCX
       </button>
@@ -64,12 +64,12 @@ export default function ExportToolbar({ report }: ExportToolbarProps) {
       <button
         onClick={() => handleExport("pdf")}
         disabled={exportingPdf}
-        className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-red-600/20 border border-red-500/30 text-red-300 hover:bg-red-600/30 hover:border-red-400/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50 gap-2"
       >
         {exportingPdf ? (
           <Loader2 className="w-4 h-4 animate-spin" />
         ) : (
-          <FileDown className="w-4 h-4" />
+          <FileDown className="w-4 h-4 text-destructive" />
         )}
         Download PDF
       </button>

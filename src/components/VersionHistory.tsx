@@ -23,7 +23,7 @@ export default function VersionHistory({ edits, onRevert }: VersionHistoryProps)
     >
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"
+        className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
       >
         <History className="w-3 h-3" />
         <span>{edits.length} edit{edits.length > 1 ? "s" : ""}</span>
@@ -45,19 +45,19 @@ export default function VersionHistory({ edits, onRevert }: VersionHistoryProps)
             {edits.map((edit, index) => (
               <div
                 key={index}
-                className="flex items-start justify-between gap-2 p-2 rounded-lg bg-white/5 border border-white/5"
+                className="flex items-start justify-between gap-2 p-3 rounded-md bg-muted/50 border"
               >
                 <div className="min-w-0">
-                  <p className="text-xs text-gray-400 truncate">
+                  <p className="text-xs text-foreground truncate font-medium">
                     &ldquo;{edit.instruction}&rdquo;
                   </p>
-                  <p className="text-[10px] text-gray-600 mt-0.5">
+                  <p className="text-[10px] text-muted-foreground mt-1">
                     {new Date(edit.timestamp).toLocaleTimeString()}
                   </p>
                 </div>
                 <button
                   onClick={() => onRevert(edit)}
-                  className="flex-shrink-0 p-1 rounded hover:bg-white/10 text-gray-500 hover:text-amber-400 transition-colors"
+                  className="flex-shrink-0 p-1.5 rounded-md hover:bg-background text-muted-foreground hover:text-foreground border border-transparent hover:border-border transition-colors shadow-sm"
                   title="Revert to previous"
                 >
                   <RotateCcw className="w-3 h-3" />

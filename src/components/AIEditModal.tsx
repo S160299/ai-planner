@@ -52,7 +52,7 @@ export default function AIEditModal({
           onClick={onClose}
         >
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
 
           {/* Modal */}
           <motion.div
@@ -60,39 +60,39 @@ export default function AIEditModal({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="relative w-full max-w-lg bg-[#1a1a2e]/95 border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
+            className="relative w-full max-w-lg bg-background border rounded-xl shadow-lg overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+            <div className="flex items-center justify-between px-6 py-4 border-b">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-400" />
-                <h3 className="text-white font-semibold">Edit with AI</h3>
+                <Sparkles className="w-5 h-5 text-foreground" />
+                <h3 className="text-foreground tracking-tight font-semibold">Edit with AI</h3>
               </div>
               <button
                 onClick={onClose}
-                className="p-1 rounded-lg hover:bg-white/10 transition-colors"
+                className="inline-flex items-center justify-center rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none bg-secondary p-1"
               >
-                <X className="w-4 h-4 text-gray-400" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Content */}
-            <div className="p-6 space-y-4">
-              <p className="text-sm text-gray-400">
-                Editing: <span className="text-purple-300 font-medium">{sectionTitle}</span>
+            <div className="p-6 space-y-6">
+              <p className="text-sm text-muted-foreground">
+                Editing: <span className="text-foreground font-medium">{sectionTitle}</span>
               </p>
 
               {/* Quick Actions */}
-              <div>
-                <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Quick Actions</p>
+              <div className="space-y-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quick Actions</p>
                 <div className="flex flex-wrap gap-2">
                   {quickActions.map((action) => (
                     <button
                       key={action.label}
                       onClick={() => handleQuickAction(action.instruction)}
                       disabled={isLoading}
-                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-white/5 border border-white/10 text-gray-300 hover:bg-purple-500/20 hover:border-purple-500/30 hover:text-purple-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="inline-flex items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none h-8 px-3 text-xs font-medium transition-colors shadow-sm"
                     >
                       {action.label}
                     </button>
@@ -101,15 +101,15 @@ export default function AIEditModal({
               </div>
 
               {/* Custom Instruction */}
-              <div>
-                <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">
+              <div className="space-y-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   Custom Instruction
                 </p>
                 <textarea
                   value={instruction}
                   onChange={(e) => setInstruction(e.target.value)}
                   placeholder="e.g., Add more technical details about the implementation..."
-                  className="w-full h-24 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/30 transition-all"
+                  className="flex min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                   disabled={isLoading}
                 />
               </div>
@@ -118,16 +118,16 @@ export default function AIEditModal({
               <button
                 onClick={handleSubmit}
                 disabled={!instruction.trim() || isLoading}
-                className="w-full py-3 px-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+                className="inline-flex w-full items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-10 px-4 py-2"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     AI is editing...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" />
+                    <Sparkles className="mr-2 h-4 w-4" />
                     Apply Edit
                   </>
                 )}

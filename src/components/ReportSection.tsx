@@ -58,20 +58,18 @@ function renderContent(content: unknown): React.ReactNode {
   if (content === null || content === undefined) return null;
 
   if (typeof content === "string") {
-    return <p className="text-gray-300 text-sm leading-relaxed">{content}</p>;
+    return <p className="text-muted-foreground text-sm leading-relaxed">{content}</p>;
   }
 
   if (Array.isArray(content)) {
-    // Check if it's an array of objects or primitives
     if (content.length === 0) return null;
 
     if (typeof content[0] === "string") {
       return (
-        <ul className="space-y-1.5">
+        <ul className="space-y-1.5 list-disc list-inside">
           {content.map((item, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
-              <span className="text-purple-400 mt-1 text-xs">▸</span>
-              <span>{item}</span>
+            <li key={i} className="text-sm text-muted-foreground">
+              {item}
             </li>
           ))}
         </ul>
@@ -83,7 +81,7 @@ function renderContent(content: unknown): React.ReactNode {
         {content.map((item, i) => (
           <div
             key={i}
-            className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]"
+            className="p-4 rounded-lg bg-muted/40 border"
           >
             {renderContent(item)}
           </div>
@@ -95,7 +93,7 @@ function renderContent(content: unknown): React.ReactNode {
   if (typeof content === "object") {
     const obj = content as Record<string, unknown>;
     return (
-      <div className="space-y-2">
+      <div className="space-y-3">
         {Object.entries(obj).map(([key, value]) => {
           const formattedKey = key
             .replace(/([A-Z])/g, " $1")
@@ -105,12 +103,12 @@ function renderContent(content: unknown): React.ReactNode {
           if (typeof value === "boolean") {
             return (
               <div key={key} className="flex items-center gap-2 text-sm">
-                <span className="text-gray-500 font-medium">{formattedKey}:</span>
+                <span className="text-muted-foreground font-medium">{formattedKey}:</span>
                 <span
-                  className={`px-2 py-0.5 rounded text-xs font-medium ${
+                  className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${
                     value
-                      ? "bg-emerald-500/20 text-emerald-300"
-                      : "bg-red-500/20 text-red-300"
+                      ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                      : "bg-destructive/10 text-destructive border-destructive/20"
                   }`}
                 >
                   {value ? "Yes" : "No"}
@@ -122,8 +120,8 @@ function renderContent(content: unknown): React.ReactNode {
           if (typeof value === "number") {
             return (
               <div key={key} className="flex items-center gap-2 text-sm">
-                <span className="text-gray-500 font-medium">{formattedKey}:</span>
-                <span className="text-white font-semibold">{value}</span>
+                <span className="text-muted-foreground font-medium">{formattedKey}:</span>
+                <span className="font-semibold">{value}</span>
               </div>
             );
           }
@@ -131,15 +129,15 @@ function renderContent(content: unknown): React.ReactNode {
           if (typeof value === "string") {
             return (
               <div key={key} className="text-sm">
-                <span className="text-gray-500 font-medium">{formattedKey}: </span>
-                <span className="text-gray-300">{value}</span>
+                <span className="text-muted-foreground font-medium">{formattedKey}: </span>
+                <span>{value}</span>
               </div>
             );
           }
 
           return (
-            <div key={key}>
-              <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1.5">
+            <div key={key} className="mt-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                 {formattedKey}
               </p>
               {renderContent(value)}
@@ -150,7 +148,7 @@ function renderContent(content: unknown): React.ReactNode {
     );
   }
 
-  return <p className="text-gray-300 text-sm">{String(content)}</p>;
+  return <p className="text-muted-foreground text-sm">{String(content)}</p>;
 }
 
 export default function ReportSection({
@@ -164,7 +162,9 @@ export default function ReportSection({
   index,
 }: ReportSectionProps) {
   const Icon = sectionIcons[id] || LayoutGrid;
-  const badge = agentBadges[agentSource];
+  
+  // Generic Shadcn pill style instead of bright colors
+  const badgeLabel = agentBadges[agentSource]?.label || agentSource;
 
   return (
     <motion.div
@@ -174,32 +174,27 @@ export default function ReportSection({
       transition={{ delay: index * 0.05 }}
       className="group relative"
     >
-      <div className="relative overflow-hidden rounded-2xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-sm hover:border-white/[0.15] transition-all duration-300">
-        {/* Subtle gradient accent at top */}
-        <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
-
+      <div className="rounded-xl border bg-card text-card-foreground shadow-sm transition-all hover:shadow-md">
         <div className="p-6">
           {/* Header */}
-          <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="flex items-start justify-between gap-4 mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                <Icon className="w-4 h-4 text-purple-400" />
+              <div className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center border">
+                <Icon className="w-4 h-4 text-foreground" />
               </div>
               <div>
-                <h3 className="text-white font-semibold text-base">{title}</h3>
-                {badge && (
-                  <span
-                    className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-medium border ${badge.color}`}
-                  >
-                    {badge.label}
-                  </span>
-                )}
+                <h3 className="font-semibold tracking-tight">{title}</h3>
+                <span
+                  className="inline-block mt-0.5 px-2 py-0.5 rounded text-[10px] font-medium border bg-muted text-muted-foreground"
+                >
+                  {badgeLabel}
+                </span>
               </div>
             </div>
 
             <button
               onClick={onEditClick}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-500/10 border border-purple-500/20 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400/40 transition-all opacity-0 group-hover:opacity-100"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-secondary text-secondary-foreground shadow-sm border hover:bg-secondary/80 transition-all opacity-0 group-hover:opacity-100"
             >
               <Sparkles className="w-3 h-3" />
               Edit with AI
@@ -207,7 +202,7 @@ export default function ReportSection({
           </div>
 
           {/* Content */}
-          <div className="text-gray-300">{renderContent(content)}</div>
+          <div className="text-foreground">{renderContent(content)}</div>
 
           {/* Version History */}
           <VersionHistory edits={edits} onRevert={onRevert} />
