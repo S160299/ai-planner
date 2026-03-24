@@ -204,6 +204,12 @@ function createStyledTable(
   headers: string[],
   rows: string[][]
 ): Table {
+  // A4 usable width in DXA (1 DXA = 1/20th of a point)
+  // A4 = 210mm, margins ~25mm each side = 160mm usable
+  // 160mm * 56.7 DXA/mm ≈ 9072 DXA
+  const TABLE_WIDTH_DXA = 9072;
+  const colWidthDxa = Math.floor(TABLE_WIDTH_DXA / headers.length);
+
   const headerCells = headers.map(
     (h) =>
       new TableCell({
@@ -216,7 +222,7 @@ function createStyledTable(
           }),
         ],
         shading: { type: ShadingType.SOLID, color: COLORS.purple },
-        width: { size: Math.floor(100 / headers.length), type: WidthType.PERCENTAGE },
+        width: { size: colWidthDxa, type: WidthType.DXA },
       })
   );
 
@@ -234,7 +240,7 @@ function createStyledTable(
                   spacing: { before: 40, after: 40 },
                 }),
               ],
-              width: { size: Math.floor(100 / headers.length), type: WidthType.PERCENTAGE },
+              width: { size: colWidthDxa, type: WidthType.DXA },
               shading: rowIndex % 2 === 0
                 ? { type: ShadingType.SOLID, color: COLORS.lightGray }
                 : { type: ShadingType.SOLID, color: COLORS.white },
@@ -245,7 +251,7 @@ function createStyledTable(
 
   return new Table({
     rows: [new TableRow({ children: headerCells }), ...dataRows],
-    width: { size: 100, type: WidthType.PERCENTAGE },
+    width: { size: TABLE_WIDTH_DXA, type: WidthType.DXA },
     borders: {
       top: { style: BorderStyle.SINGLE, size: 1, color: COLORS.border },
       bottom: { style: BorderStyle.SINGLE, size: 1, color: COLORS.border },
