@@ -283,32 +283,32 @@ export async function generateDocx(report: ReportData): Promise<Uint8Array> {
   sections.push(createSubheading(report.plannerOutput.problemBreakdown.title));
   sections.push(createBody(report.plannerOutput.problemBreakdown.description));
   sections.push(createSectionLabel("Core Areas"));
-  report.plannerOutput.problemBreakdown.coreAreas.forEach((area) => {
+  (report.plannerOutput.problemBreakdown.coreAreas || []).forEach((area) => {
     sections.push(createBullet(area));
   });
 
   sections.push(createHeading("2. Stakeholders"));
-  report.plannerOutput.stakeholders.forEach((s) => {
+  (report.plannerOutput.stakeholders || []).forEach((s) => {
     sections.push(createSubheading(s.name));
     sections.push(createLabeledText("Role", s.role));
     sections.push(createSectionLabel("Needs"));
-    s.needs.forEach((need) => {
+    (s.needs || []).forEach((need) => {
       sections.push(createBullet(need));
     });
   });
 
   sections.push(createHeading("3. Scope"));
   sections.push(createSectionLabel("In Scope"));
-  report.plannerOutput.scope.inScope.forEach((item) => {
+  (report.plannerOutput.scope?.inScope || []).forEach((item) => {
     sections.push(createBullet(item));
   });
   sections.push(createSectionLabel("Out of Scope"));
-  report.plannerOutput.scope.outOfScope.forEach((item) => {
+  (report.plannerOutput.scope?.outOfScope || []).forEach((item) => {
     sections.push(createBullet(item));
   });
 
   sections.push(createHeading("4. Constraints"));
-  report.plannerOutput.constraints.forEach((c) => {
+  (report.plannerOutput.constraints || []).forEach((c) => {
     sections.push(createBullet(c));
   });
 
@@ -317,18 +317,18 @@ export async function generateDocx(report: ReportData): Promise<Uint8Array> {
   sections.push(createHeading("5. Market Context"));
   sections.push(createBody(report.insightOutput.marketContext.overview));
   sections.push(createSectionLabel("Industry Trends"));
-  report.insightOutput.marketContext.trends.forEach((t) => {
+  (report.insightOutput.marketContext?.trends || []).forEach((t) => {
     sections.push(createBullet(t));
   });
   sections.push(createSectionLabel("Competitive Landscape"));
-  sections.push(createBody(report.insightOutput.marketContext.competitiveLandscape));
+  sections.push(createBody(report.insightOutput.marketContext?.competitiveLandscape || "N/A"));
 
   sections.push(createHeading("6. Risk Analysis"));
-  const riskRows = report.insightOutput.risks.map((r) => [
-    r.category,
-    r.description,
-    r.likelihood,
-    r.mitigation,
+  const riskRows = (report.insightOutput.risks || []).map((r) => [
+    r.category || "N/A",
+    r.description || "N/A",
+    r.likelihood || "N/A",
+    r.mitigation || "N/A",
   ]);
   sections.push(
     createStyledTable(
@@ -338,67 +338,67 @@ export async function generateDocx(report: ReportData): Promise<Uint8Array> {
   );
 
   sections.push(createHeading("7. Solution Approaches"));
-  report.insightOutput.solutionApproaches.forEach((sa) => {
+  (report.insightOutput.solutionApproaches || []).forEach((sa) => {
     sections.push(createSubheading(sa.name));
     if (sa.recommended) {
       sections.push(createRecommendedBadge());
     }
     sections.push(createBody(sa.description));
     sections.push(createSectionLabel("Pros"));
-    sa.pros.forEach((p) => sections.push(createBullet(p, 1)));
+    (sa.pros || []).forEach((p) => sections.push(createBullet(p, 1)));
     sections.push(createSectionLabel("Cons"));
-    sa.cons.forEach((c) => sections.push(createBullet(c, 1)));
+    (sa.cons || []).forEach((c) => sections.push(createBullet(c, 1)));
   });
 
   // ---- EXECUTION OUTPUT ----
   sections.push(createDivider());
   sections.push(createHeading("8. Action Plan"));
-  report.executionOutput.actionPlan.forEach((phase) => {
+  (report.executionOutput.actionPlan || []).forEach((phase) => {
     sections.push(createSubheading(`${phase.phase}: ${phase.title}`));
     sections.push(createCalloutBox(`Duration: ${phase.duration}`));
-    const taskRows = phase.tasks.map((t) => [t.task, t.priority, t.owner]);
+    const taskRows = (phase.tasks || []).map((t) => [t.task || "N/A", t.priority || "N/A", t.owner || "N/A"]);
     sections.push(
       createStyledTable(["Task", "Priority", "Owner"], taskRows)
     );
     sections.push(createSectionLabel("Deliverables"));
-    phase.deliverables.forEach((d) => sections.push(createBullet(d)));
+    (phase.deliverables || []).forEach((d) => sections.push(createBullet(d)));
   });
 
   sections.push(createHeading("9. Technology Recommendations"));
-  const techRows = report.executionOutput.technologyRecommendations.map((t) => [
-    t.category,
-    t.recommendation,
-    t.reasoning,
+  const techRows = (report.executionOutput.technologyRecommendations || []).map((t) => [
+    t.category || "N/A",
+    t.recommendation || "N/A",
+    t.reasoning || "N/A",
   ]);
   sections.push(
     createStyledTable(["Category", "Recommendation", "Reasoning"], techRows)
   );
 
   sections.push(createHeading("10. Resource Estimates"));
-  const resRows = report.executionOutput.resourceEstimates.map((r) => [
-    r.role,
-    r.count.toString(),
-    r.duration,
+  const resRows = (report.executionOutput.resourceEstimates || []).map((r) => [
+    r.role || "N/A",
+    (r.count || 0).toString(),
+    r.duration || "N/A",
   ]);
   sections.push(
     createStyledTable(["Role", "Count", "Duration"], resRows)
   );
 
   sections.push(createHeading("11. Budget Estimate"));
-  const budgetRows = report.executionOutput.budgetEstimate.map((b) => [
-    b.category,
-    b.estimatedCost,
-    b.notes,
+  const budgetRows = (report.executionOutput.budgetEstimate || []).map((b) => [
+    b.category || "N/A",
+    b.estimatedCost || "N/A",
+    b.notes || "N/A",
   ]);
   sections.push(
     createStyledTable(["Category", "Estimated Cost", "Notes"], budgetRows)
   );
 
   sections.push(createHeading("12. Success Metrics"));
-  const metricRows = report.executionOutput.successMetrics.map((m) => [
-    m.metric,
-    m.target,
-    m.timeframe,
+  const metricRows = (report.executionOutput.successMetrics || []).map((m) => [
+    m.metric || "N/A",
+    m.target || "N/A",
+    m.timeframe || "N/A",
   ]);
   sections.push(
     createStyledTable(["Metric", "Target", "Timeframe"], metricRows)

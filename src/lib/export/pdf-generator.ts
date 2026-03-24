@@ -259,32 +259,32 @@ export function generatePdf(report: ReportData): Uint8Array {
   drawSubheading(report.plannerOutput.problemBreakdown.title);
   drawBody(report.plannerOutput.problemBreakdown.description);
   drawSectionLabel("Core Areas");
-  report.plannerOutput.problemBreakdown.coreAreas.forEach((area) => {
+  (report.plannerOutput.problemBreakdown.coreAreas || []).forEach((area) => {
     drawBullet(area);
   });
 
   drawHeading("2. Stakeholders");
-  report.plannerOutput.stakeholders.forEach((s) => {
+  (report.plannerOutput.stakeholders || []).forEach((s) => {
     drawSubheading(s.name);
     drawLabeledText("Role", s.role);
     drawSectionLabel("Needs");
-    s.needs.forEach((need) => {
+    (s.needs || []).forEach((need) => {
       drawBullet(need, 4);
     });
   });
 
   drawHeading("3. Scope");
   drawSectionLabel("In Scope");
-  report.plannerOutput.scope.inScope.forEach((item) => {
+  (report.plannerOutput.scope?.inScope || []).forEach((item) => {
     drawBullet(item);
   });
   drawSectionLabel("Out of Scope");
-  report.plannerOutput.scope.outOfScope.forEach((item) => {
+  (report.plannerOutput.scope?.outOfScope || []).forEach((item) => {
     drawBullet(item);
   });
 
   drawHeading("4. Constraints");
-  report.plannerOutput.constraints.forEach((c) => {
+  (report.plannerOutput.constraints || []).forEach((c) => {
     drawBullet(c);
   });
 
@@ -293,36 +293,36 @@ export function generatePdf(report: ReportData): Uint8Array {
   // ===========================
   drawDivider();
   drawHeading("5. Market Context");
-  drawBody(report.insightOutput.marketContext.overview);
+  drawBody(report.insightOutput.marketContext?.overview || "N/A");
   drawSectionLabel("Industry Trends");
-  report.insightOutput.marketContext.trends.forEach((t) => {
+  (report.insightOutput.marketContext?.trends || []).forEach((t) => {
     drawBullet(t);
   });
   drawSectionLabel("Competitive Landscape");
-  drawBody(report.insightOutput.marketContext.competitiveLandscape);
+  drawBody(report.insightOutput.marketContext?.competitiveLandscape || "N/A");
 
   drawHeading("6. Risk Analysis");
   drawTable(
     ["Category", "Description", "Likelihood", "Mitigation"],
-    report.insightOutput.risks.map((r) => [
-      r.category,
-      r.description,
-      r.likelihood,
-      r.mitigation,
+    (report.insightOutput.risks || []).map((r) => [
+      r.category || "N/A",
+      r.description || "N/A",
+      r.likelihood || "N/A",
+      r.mitigation || "N/A",
     ])
   );
 
   drawHeading("7. Solution Approaches");
-  report.insightOutput.solutionApproaches.forEach((sa) => {
+  (report.insightOutput.solutionApproaches || []).forEach((sa) => {
     drawSubheading(sa.name);
     if (sa.recommended) {
       drawRecommendedBadge();
     }
     drawBody(sa.description);
     drawSectionLabel("Pros");
-    sa.pros.forEach((p) => drawBullet(p, 4));
+    (sa.pros || []).forEach((p) => drawBullet(p, 4));
     drawSectionLabel("Cons");
-    sa.cons.forEach((c) => drawBullet(c, 4));
+    (sa.cons || []).forEach((c) => drawBullet(c, 4));
   });
 
   // ===========================
@@ -330,54 +330,54 @@ export function generatePdf(report: ReportData): Uint8Array {
   // ===========================
   drawDivider();
   drawHeading("8. Action Plan");
-  report.executionOutput.actionPlan.forEach((phase) => {
+  (report.executionOutput.actionPlan || []).forEach((phase) => {
     drawSubheading(`${phase.phase}: ${phase.title}`);
     drawCalloutBox(`Duration: ${phase.duration}`);
     drawTable(
       ["Task", "Priority", "Owner"],
-      phase.tasks.map((t) => [t.task, t.priority, t.owner])
+      (phase.tasks || []).map((t) => [t.task || "N/A", t.priority || "N/A", t.owner || "N/A"])
     );
     drawSectionLabel("Deliverables");
-    phase.deliverables.forEach((d) => drawBullet(d));
+    (phase.deliverables || []).forEach((d) => drawBullet(d));
   });
 
   drawHeading("9. Technology Recommendations");
   drawTable(
     ["Category", "Recommendation", "Reasoning"],
-    report.executionOutput.technologyRecommendations.map((t) => [
-      t.category,
-      t.recommendation,
-      t.reasoning,
+    (report.executionOutput.technologyRecommendations || []).map((t) => [
+      t.category || "N/A",
+      t.recommendation || "N/A",
+      t.reasoning || "N/A",
     ])
   );
 
   drawHeading("10. Resource Estimates");
   drawTable(
     ["Role", "Count", "Duration"],
-    report.executionOutput.resourceEstimates.map((r) => [
-      r.role,
-      r.count.toString(),
-      r.duration,
+    (report.executionOutput.resourceEstimates || []).map((r) => [
+      r.role || "N/A",
+      (r.count || 0).toString(),
+      r.duration || "N/A",
     ])
   );
 
   drawHeading("11. Budget Estimate");
   drawTable(
     ["Category", "Estimated Cost", "Notes"],
-    report.executionOutput.budgetEstimate.map((b) => [
-      b.category,
-      b.estimatedCost,
-      b.notes,
+    (report.executionOutput.budgetEstimate || []).map((b) => [
+      b.category || "N/A",
+      b.estimatedCost || "N/A",
+      b.notes || "N/A",
     ])
   );
 
   drawHeading("12. Success Metrics");
   drawTable(
     ["Metric", "Target", "Timeframe"],
-    report.executionOutput.successMetrics.map((m) => [
-      m.metric,
-      m.target,
-      m.timeframe,
+    (report.executionOutput.successMetrics || []).map((m) => [
+      m.metric || "N/A",
+      m.target || "N/A",
+      m.timeframe || "N/A",
     ])
   );
 

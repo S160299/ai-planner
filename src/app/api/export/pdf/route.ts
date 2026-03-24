@@ -14,12 +14,13 @@ export async function POST(request: NextRequest) {
     }
 
     const buffer = generatePdf(report);
+    const nodeBuffer = Buffer.from(buffer);
 
-    return new Response(buffer.buffer as ArrayBuffer, {
+    return new Response(nodeBuffer, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="AI-Planning-Report-${Date.now()}.pdf"`,
-        "Content-Length": buffer.byteLength.toString(),
+        "Content-Length": nodeBuffer.byteLength.toString(),
       },
     });
   } catch (error) {

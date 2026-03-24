@@ -14,13 +14,14 @@ export async function POST(request: NextRequest) {
     }
 
     const buffer = await generateDocx(report);
+    const nodeBuffer = Buffer.from(buffer);
 
-    return new Response(buffer.buffer as ArrayBuffer, {
+    return new Response(nodeBuffer, {
       headers: {
         "Content-Type":
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "Content-Disposition": `attachment; filename="AI-Planning-Report-${Date.now()}.docx"`,
-        "Content-Length": buffer.byteLength.toString(),
+        "Content-Length": nodeBuffer.byteLength.toString(),
       },
     });
   } catch (error) {
