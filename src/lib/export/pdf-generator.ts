@@ -1,6 +1,24 @@
 import { jsPDF } from "jspdf";
 import { ReportData } from "@/lib/agents/types";
 
+// Purple theme colors (RGB)
+const COLORS = {
+  purple: [107, 33, 168] as [number, number, number],
+  purpleDark: [88, 28, 135] as [number, number, number],
+  purpleLight: [243, 232, 255] as [number, number, number],
+  purpleMid: [221, 214, 254] as [number, number, number],
+  black: [26, 26, 46] as [number, number, number],
+  darkGray: [55, 65, 81] as [number, number, number],
+  gray: [107, 114, 128] as [number, number, number],
+  lightGray: [249, 250, 251] as [number, number, number],
+  white: [255, 255, 255] as [number, number, number],
+  border: [229, 231, 235] as [number, number, number],
+};
+
+const PAGE_WIDTH = 170;
+const MARGIN_LEFT = 20;
+const MARGIN_RIGHT = 190;
+
 export function generatePdf(report: ReportData): Uint8Array {
   const doc = new jsPDF({
     orientation: "portrait",
@@ -8,208 +26,283 @@ export function generatePdf(report: ReportData): Uint8Array {
     format: "a4",
   });
 
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const margin = 20;
-  const contentWidth = pageWidth - margin * 2;
-  let y = margin;
+  let y = 20;
 
-  const colors = {
-    primary: [22, 33, 62] as [number, number, number],
-    secondary: [15, 52, 96] as [number, number, number],
-    accent: [83, 52, 131] as [number, number, number],
-    text: [30, 30, 30] as [number, number, number],
-    lightGray: [240, 240, 245] as [number, number, number],
-    white: [255, 255, 255] as [number, number, number],
-    border: [200, 200, 210] as [number, number, number],
-  };
-
-  function checkNewPage(needed: number) {
-    if (y + needed > pageHeight - margin) {
+  function checkPage(needed = 25) {
+    if (y + needed > 275) {
       doc.addPage();
-      y = margin;
-      addFooter();
+      y = 20;
     }
   }
 
-  function addFooter() {
-    const pageNum = doc.getNumberOfPages();
-    doc.setFontSize(8);
-    doc.setTextColor(...colors.border);
-    doc.text(
-      `AI Planning Report | Page ${pageNum}`,
-      pageWidth / 2,
-      pageHeight - 10,
-      { align: "center" }
-    );
-  }
-
-  function addTitle(text: string) {
-    checkNewPage(20);
-    doc.setFontSize(24);
+  function drawTitle(text: string) {
+    checkPage(20);
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(...colors.primary);
-    doc.text(text, pageWidth / 2, y, { align: "center" });
+    doc.setFontSize(26);
+    doc.setTextColor(...COLORS.purple);
+    doc.text(text, MARGIN_LEFT, y);
     y += 12;
   }
 
-  function addHeading(text: string) {
-    checkNewPage(15);
-    y += 5;
-    doc.setFillColor(...colors.primary);
-    doc.rect(margin, y - 5, contentWidth, 10, "F");
-    doc.setFontSize(13);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(...colors.white);
-    doc.text(text, margin + 4, y + 1);
-    y += 12;
+  function drawSubtitle(text: string) {
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(10);
+    doc.setTextColor(...COLORS.gray);
+    doc.text(text, MARGIN_LEFT, y);
+    y += 8;
   }
 
-  function addSubheading(text: string) {
-    checkNewPage(12);
+  function drawHeading(text: string) {
+    checkPage(18);
+    // Purple heading with bottom line
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(15);
+    doc.setTextColor(...COLORS.purple);
+    doc.text(text, MARGIN_LEFT, y);
     y += 2;
-    doc.setFontSize(11);
+    doc.setDrawColor(...COLORS.purpleMid);
+    doc.setLineWidth(0.5);
+    doc.line(MARGIN_LEFT, y, MARGIN_RIGHT, y);
+    y += 8;
+  }
+
+  function drawSubheading(text: string) {
+    checkPage(12);
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(...colors.secondary);
-    doc.text(text, margin, y);
+    doc.setFontSize(12);
+    doc.setTextColor(...COLORS.purpleDark);
+    doc.text(text, MARGIN_LEFT, y);
     y += 7;
   }
 
-  function addBody(text: string) {
-    checkNewPage(10);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(...colors.text);
-    const lines = doc.splitTextToSize(text, contentWidth);
-    for (const line of lines) {
-      checkNewPage(6);
-      doc.text(line, margin, y);
-      y += 5;
-    }
-    y += 2;
-  }
-
-  function addBullet(text: string, indent = 0) {
-    checkNewPage(8);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(...colors.text);
-    const xPos = margin + 4 + indent * 5;
-    doc.text("•", xPos - 4, y);
-    const lines = doc.splitTextToSize(text, contentWidth - indent * 5 - 4);
-    for (const line of lines) {
-      checkNewPage(6);
-      doc.text(line, xPos, y);
-      y += 5;
-    }
-  }
-
-  function addTable(headers: string[], rows: string[][]) {
-    const colWidth = contentWidth / headers.length;
-
-    checkNewPage(15);
-
-    // Header row
-    doc.setFillColor(...colors.primary);
-    doc.rect(margin, y - 4, contentWidth, 8, "F");
+  function drawSectionLabel(text: string) {
+    checkPage(10);
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(...colors.white);
-    headers.forEach((h, i) => {
-      doc.text(h, margin + i * colWidth + 2, y);
-    });
-    y += 7;
-
-    // Data rows
-    rows.forEach((row, ri) => {
-      const bgColor = ri % 2 === 0 ? colors.lightGray : colors.white;
-      const rowHeight = 7;
-      checkNewPage(rowHeight + 2);
-
-      doc.setFillColor(...bgColor);
-      doc.rect(margin, y - 4, contentWidth, rowHeight, "F");
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(...colors.text);
-      row.forEach((cell, i) => {
-        const truncated =
-          cell.length > Math.floor(colWidth / 2)
-            ? cell.substring(0, Math.floor(colWidth / 2)) + "..."
-            : cell;
-        doc.text(truncated, margin + i * colWidth + 2, y);
-      });
-      y += rowHeight;
-    });
+    doc.setTextColor(...COLORS.purple);
+    doc.text(text.toUpperCase(), MARGIN_LEFT, y);
     y += 5;
   }
 
-  function addLabel(label: string, value: string) {
-    checkNewPage(8);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(...colors.secondary);
-    doc.text(`${label}: `, margin, y);
-    const labelWidth = doc.getTextWidth(`${label}: `);
+  function drawBody(text: string, indent = 0) {
+    checkPage(8);
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(...colors.text);
-    const lines = doc.splitTextToSize(value, contentWidth - labelWidth);
-    doc.text(lines[0], margin + labelWidth, y);
-    y += 5;
-    for (let i = 1; i < lines.length; i++) {
-      checkNewPage(6);
-      doc.text(lines[i], margin, y);
+    doc.setFontSize(10);
+    doc.setTextColor(...COLORS.darkGray);
+    const lines = doc.splitTextToSize(text, PAGE_WIDTH - indent);
+    lines.forEach((line: string) => {
+      checkPage(6);
+      doc.text(line, MARGIN_LEFT + indent, y);
       y += 5;
-    }
+    });
+    y += 2;
   }
 
-  // === TITLE ===
-  addTitle("AI Planning Report");
-  doc.setFontSize(10);
-  doc.setTextColor(...colors.border);
-  doc.text(
-    `Generated: ${new Date(report.generatedAt).toLocaleDateString()}`,
-    pageWidth / 2,
-    y,
-    { align: "center" }
+  function drawBullet(text: string, indent = 0) {
+    checkPage(8);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(...COLORS.darkGray);
+    const bulletX = MARGIN_LEFT + 4 + indent;
+    // Purple bullet dot
+    doc.setFillColor(...COLORS.purple);
+    doc.circle(bulletX - 1, y - 1.2, 0.8, "F");
+    const lines = doc.splitTextToSize(text, PAGE_WIDTH - 8 - indent);
+    lines.forEach((line: string, i: number) => {
+      checkPage(6);
+      doc.text(line, bulletX + 2, y);
+      y += 5;
+    });
+    y += 1;
+  }
+
+  function drawLabeledText(label: string, value: string, indent = 0) {
+    checkPage(8);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(...COLORS.purpleDark);
+    const labelWidth = doc.getTextWidth(`${label}: `);
+    doc.text(`${label}: `, MARGIN_LEFT + indent, y);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(...COLORS.darkGray);
+    const valueLines = doc.splitTextToSize(value, PAGE_WIDTH - labelWidth - indent);
+    valueLines.forEach((line: string, i: number) => {
+      if (i === 0) {
+        doc.text(line, MARGIN_LEFT + indent + labelWidth, y);
+      } else {
+        y += 5;
+        checkPage(6);
+        doc.text(line, MARGIN_LEFT + indent + labelWidth, y);
+      }
+    });
+    y += 6;
+  }
+
+  function drawCalloutBox(text: string) {
+    checkPage(14);
+    const lines = doc.splitTextToSize(text, PAGE_WIDTH - 12);
+    const boxHeight = lines.length * 5 + 6;
+    // Light purple background
+    doc.setFillColor(...COLORS.purpleLight);
+    doc.rect(MARGIN_LEFT, y - 4, PAGE_WIDTH, boxHeight, "F");
+    // Purple left border
+    doc.setFillColor(...COLORS.purple);
+    doc.rect(MARGIN_LEFT, y - 4, 1.5, boxHeight, "F");
+    // Text
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(9.5);
+    doc.setTextColor(...COLORS.purpleDark);
+    lines.forEach((line: string) => {
+      doc.text(line, MARGIN_LEFT + 6, y);
+      y += 5;
+    });
+    y += 4;
+  }
+
+  function drawRecommendedBadge() {
+    checkPage(8);
+    doc.setFillColor(...COLORS.purpleLight);
+    doc.roundedRect(MARGIN_LEFT + 4, y - 4, 35, 6, 1, 1, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(...COLORS.purple);
+    doc.text("★ RECOMMENDED", MARGIN_LEFT + 7, y);
+    y += 5;
+  }
+
+  function drawDivider() {
+    y += 3;
+    doc.setDrawColor(...COLORS.purpleMid);
+    doc.setLineWidth(0.3);
+    doc.line(MARGIN_LEFT, y, MARGIN_RIGHT, y);
+    y += 6;
+  }
+
+  function drawTable(headers: string[], rows: string[][]) {
+    const colCount = headers.length;
+    const colWidth = PAGE_WIDTH / colCount;
+    const rowHeight = 8;
+
+    // Check if we need a new page for at least header + 1 row
+    checkPage(rowHeight * 2 + 4);
+
+    // Header row - purple background
+    doc.setFillColor(...COLORS.purple);
+    doc.rect(MARGIN_LEFT, y - 5, PAGE_WIDTH, rowHeight, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(...COLORS.white);
+    headers.forEach((h, i) => {
+      doc.text(h, MARGIN_LEFT + i * colWidth + 2, y - 0.5, { maxWidth: colWidth - 4 });
+    });
+    y += rowHeight - 5;
+
+    // Data rows with alternating colors
+    rows.forEach((row, rowIndex) => {
+      // Calculate how tall this row needs to be
+      let maxLines = 1;
+      row.forEach((cell) => {
+        const lines = doc.splitTextToSize(cell, colWidth - 4);
+        if (lines.length > maxLines) maxLines = lines.length;
+      });
+      const thisRowHeight = Math.max(rowHeight, maxLines * 4.5 + 3);
+
+      checkPage(thisRowHeight + 2);
+
+      // Alternating background
+      if (rowIndex % 2 === 0) {
+        doc.setFillColor(...COLORS.lightGray);
+      } else {
+        doc.setFillColor(...COLORS.white);
+      }
+      doc.rect(MARGIN_LEFT, y - 4, PAGE_WIDTH, thisRowHeight, "F");
+
+      // Cell borders
+      doc.setDrawColor(...COLORS.border);
+      doc.setLineWidth(0.2);
+      doc.line(MARGIN_LEFT, y - 4, MARGIN_LEFT + PAGE_WIDTH, y - 4);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(...COLORS.darkGray);
+      row.forEach((cell, i) => {
+        const lines = doc.splitTextToSize(cell, colWidth - 4);
+        lines.forEach((line: string, li: number) => {
+          doc.text(line, MARGIN_LEFT + i * colWidth + 2, y + li * 4.5);
+        });
+      });
+      y += thisRowHeight - 3;
+    });
+
+    // Bottom border
+    doc.setDrawColor(...COLORS.border);
+    doc.setLineWidth(0.2);
+    doc.line(MARGIN_LEFT, y - 1, MARGIN_LEFT + PAGE_WIDTH, y - 1);
+    y += 6;
+  }
+
+  // ===========================
+  //  TITLE PAGE
+  // ===========================
+  drawTitle("AI Planning Report");
+  drawSubtitle(
+    `Generated: ${new Date(report.generatedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`
   );
-  y += 8;
-  addBody(`Problem Statement: "${report.problemStatement}"`);
-  y += 5;
+  y += 2;
+  drawCalloutBox(`Problem Statement: "${report.problemStatement}"`);
+  drawDivider();
 
-  // === PLANNER ===
-  addHeading("1. Problem Breakdown");
-  addSubheading(report.plannerOutput.problemBreakdown.title);
-  addBody(report.plannerOutput.problemBreakdown.description);
-  addSubheading("Core Areas");
-  report.plannerOutput.problemBreakdown.coreAreas.forEach((a) => addBullet(a));
-  y += 3;
-
-  addHeading("2. Stakeholders");
-  report.plannerOutput.stakeholders.forEach((s) => {
-    addSubheading(s.name);
-    addLabel("Role", s.role);
-    s.needs.forEach((n) => addBullet(n, 1));
+  // ===========================
+  //  1. PLANNER OUTPUT
+  // ===========================
+  drawHeading("1. Problem Breakdown");
+  drawSubheading(report.plannerOutput.problemBreakdown.title);
+  drawBody(report.plannerOutput.problemBreakdown.description);
+  drawSectionLabel("Core Areas");
+  report.plannerOutput.problemBreakdown.coreAreas.forEach((area) => {
+    drawBullet(area);
   });
 
-  addHeading("3. Scope");
-  addSubheading("In Scope");
-  report.plannerOutput.scope.inScope.forEach((i) => addBullet(i));
-  addSubheading("Out of Scope");
-  report.plannerOutput.scope.outOfScope.forEach((i) => addBullet(i));
+  drawHeading("2. Stakeholders");
+  report.plannerOutput.stakeholders.forEach((s) => {
+    drawSubheading(s.name);
+    drawLabeledText("Role", s.role);
+    drawSectionLabel("Needs");
+    s.needs.forEach((need) => {
+      drawBullet(need, 4);
+    });
+  });
 
-  addHeading("4. Constraints");
-  report.plannerOutput.constraints.forEach((c) => addBullet(c));
+  drawHeading("3. Scope");
+  drawSectionLabel("In Scope");
+  report.plannerOutput.scope.inScope.forEach((item) => {
+    drawBullet(item);
+  });
+  drawSectionLabel("Out of Scope");
+  report.plannerOutput.scope.outOfScope.forEach((item) => {
+    drawBullet(item);
+  });
 
-  // === INSIGHT ===
-  addHeading("5. Market Context");
-  addBody(report.insightOutput.marketContext.overview);
-  addSubheading("Industry Trends");
-  report.insightOutput.marketContext.trends.forEach((t) => addBullet(t));
-  addSubheading("Competitive Landscape");
-  addBody(report.insightOutput.marketContext.competitiveLandscape);
+  drawHeading("4. Constraints");
+  report.plannerOutput.constraints.forEach((c) => {
+    drawBullet(c);
+  });
 
-  addHeading("6. Risk Analysis");
-  addTable(
+  // ===========================
+  //  2. INSIGHT OUTPUT
+  // ===========================
+  drawDivider();
+  drawHeading("5. Market Context");
+  drawBody(report.insightOutput.marketContext.overview);
+  drawSectionLabel("Industry Trends");
+  report.insightOutput.marketContext.trends.forEach((t) => {
+    drawBullet(t);
+  });
+  drawSectionLabel("Competitive Landscape");
+  drawBody(report.insightOutput.marketContext.competitiveLandscape);
+
+  drawHeading("6. Risk Analysis");
+  drawTable(
     ["Category", "Description", "Likelihood", "Mitigation"],
     report.insightOutput.risks.map((r) => [
       r.category,
@@ -219,30 +312,37 @@ export function generatePdf(report: ReportData): Uint8Array {
     ])
   );
 
-  addHeading("7. Solution Approaches");
+  drawHeading("7. Solution Approaches");
   report.insightOutput.solutionApproaches.forEach((sa) => {
-    addSubheading(`${sa.name}${sa.recommended ? " ⭐ Recommended" : ""}`);
-    addBody(sa.description);
-    addLabel("Pros", "");
-    sa.pros.forEach((p) => addBullet(p, 1));
-    addLabel("Cons", "");
-    sa.cons.forEach((c) => addBullet(c, 1));
+    drawSubheading(sa.name);
+    if (sa.recommended) {
+      drawRecommendedBadge();
+    }
+    drawBody(sa.description);
+    drawSectionLabel("Pros");
+    sa.pros.forEach((p) => drawBullet(p, 4));
+    drawSectionLabel("Cons");
+    sa.cons.forEach((c) => drawBullet(c, 4));
   });
 
-  // === EXECUTION ===
-  addHeading("8. Action Plan");
+  // ===========================
+  //  3. EXECUTION OUTPUT
+  // ===========================
+  drawDivider();
+  drawHeading("8. Action Plan");
   report.executionOutput.actionPlan.forEach((phase) => {
-    addSubheading(`${phase.phase}: ${phase.title} (${phase.duration})`);
-    addTable(
+    drawSubheading(`${phase.phase}: ${phase.title}`);
+    drawCalloutBox(`Duration: ${phase.duration}`);
+    drawTable(
       ["Task", "Priority", "Owner"],
       phase.tasks.map((t) => [t.task, t.priority, t.owner])
     );
-    addLabel("Deliverables", "");
-    phase.deliverables.forEach((d) => addBullet(d));
+    drawSectionLabel("Deliverables");
+    phase.deliverables.forEach((d) => drawBullet(d));
   });
 
-  addHeading("9. Technology Recommendations");
-  addTable(
+  drawHeading("9. Technology Recommendations");
+  drawTable(
     ["Category", "Recommendation", "Reasoning"],
     report.executionOutput.technologyRecommendations.map((t) => [
       t.category,
@@ -251,8 +351,8 @@ export function generatePdf(report: ReportData): Uint8Array {
     ])
   );
 
-  addHeading("10. Resource Estimates");
-  addTable(
+  drawHeading("10. Resource Estimates");
+  drawTable(
     ["Role", "Count", "Duration"],
     report.executionOutput.resourceEstimates.map((r) => [
       r.role,
@@ -261,8 +361,8 @@ export function generatePdf(report: ReportData): Uint8Array {
     ])
   );
 
-  addHeading("11. Budget Estimate");
-  addTable(
+  drawHeading("11. Budget Estimate");
+  drawTable(
     ["Category", "Estimated Cost", "Notes"],
     report.executionOutput.budgetEstimate.map((b) => [
       b.category,
@@ -271,8 +371,8 @@ export function generatePdf(report: ReportData): Uint8Array {
     ])
   );
 
-  addHeading("12. Success Metrics");
-  addTable(
+  drawHeading("12. Success Metrics");
+  drawTable(
     ["Metric", "Target", "Timeframe"],
     report.executionOutput.successMetrics.map((m) => [
       m.metric,
@@ -281,19 +381,18 @@ export function generatePdf(report: ReportData): Uint8Array {
     ])
   );
 
-  // Add footer to all pages
-  const totalPages = doc.getNumberOfPages();
-  for (let i = 1; i <= totalPages; i++) {
-    doc.setPage(i);
-    doc.setFontSize(8);
-    doc.setTextColor(...colors.border);
-    doc.text(
-      `AI Planning Report | Page ${i} of ${totalPages}`,
-      pageWidth / 2,
-      pageHeight - 10,
-      { align: "center" }
-    );
-  }
+  // Footer
+  drawDivider();
+  checkPage(10);
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(9);
+  doc.setTextColor(...COLORS.gray);
+  doc.text(
+    "Generated by PlannerAI — Multi-Agent AI Planning System",
+    105,
+    y,
+    { align: "center" }
+  );
 
   const arrayBuffer = doc.output("arraybuffer");
   return new Uint8Array(arrayBuffer);
